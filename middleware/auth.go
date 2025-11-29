@@ -10,6 +10,7 @@ import (
 type contextKey string
 
 const UserIDKey contextKey = "user_id"
+const RoleKey contextKey = "role"
 
 func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -42,9 +43,27 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			http.Error(w, "Invalid token claims", http.StatusUnauthorized)
 			return
 		}
+		//Extract the role of the user
+		role, ok := (*claims)["role"].(string)
+		if !ok {
+			http.Error(w, "Invalid token claims", http.StatusUnauthorized)
+			return
+		}
 
 		// Add user ID to request context
 		ctx := context.WithValue(r.Context(), UserIDKey, userID)
+		ctx = context.WithValue(ctx, RoleKey, role)
 		next.ServeHTTP(w, r.WithContext(ctx))
+	}
+}
+
+// the middleware that extracts the role of the user from the response
+func RoleMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		role := r.Context().Value(RoleKey).(string)
+		if role != "publisher" {
+			http.Error(w, "You cannot access this resource", http.StatusForbidden)
+		}
+		next.ServeHTTP(w, r)
 	}
 }

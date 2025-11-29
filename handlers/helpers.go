@@ -21,7 +21,7 @@ func DecodeJSONRequest(w http.ResponseWriter, r *http.Request, dest interface{})
 // CreateTokenForUser creates a JWT token for the given user
 // Returns token string and error
 func CreateTokenForUser(user *models.User) (string, error) {
-	return utils.CreateToken(user.ID.Hex())
+	return utils.CreateToken(user.ID.Hex(), user.Role)
 }
 
 // SendAuthResponse sends a standardized authentication response

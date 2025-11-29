@@ -22,11 +22,12 @@ func init() {
 	secretKey = []byte(secret_key)
 }
 
-func CreateToken(userID string) (string, error) {
+func CreateToken(userID, role string) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": userID,
 		"exp":     time.Now().Add(time.Hour * 24).Unix(),
+		"role":    role,
 	})
 	tokenString, err := token.SignedString(secretKey)
 	if err != nil {

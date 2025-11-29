@@ -3,7 +3,6 @@ package handlers
 import (
 	"AuthGo/models"
 	"AuthGo/services"
-	"AuthGo/utils"
 	"net/http"
 )
 
@@ -44,7 +43,7 @@ func (h *SignUpHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Create token
-	token, err := utils.CreateToken(user.ID.Hex())
+	token, err := CreateTokenForUser(user)
 	if err != nil {
 		http.Error(w, "Token creation failed: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -72,7 +71,7 @@ func (h *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 		return
 	}
-	token, err := utils.CreateToken(user.ID.Hex())
+	token, err := CreateTokenForUser(user)
 	if err != nil {
 		http.Error(w, "Token creation failed: "+err.Error(), http.StatusInternalServerError)
 		return
