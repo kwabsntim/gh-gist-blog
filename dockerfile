@@ -14,7 +14,7 @@ RUN go mod download
 COPY . .
 
 # Step 6: Build the Go application
-RUN CGO_ENABLED=0 GOOS=linux go build -o auth-service .
+RUN CGO_ENABLED=0 GOOS=linux go build -o ghgist-blog .
 
 # Step 7: Use minimal image for final container
 FROM alpine:latest
@@ -27,7 +27,7 @@ WORKDIR /root/
 
 # Step 10: Copy binary from builder stage
 #change the auth -service to the service name you are building
-COPY --from=builder /app/auth-service .
+COPY --from=builder /app/ghgist-blog .
 
 
 # Step 12: Expose the port your app runs on
@@ -35,4 +35,4 @@ EXPOSE 8080
 
 # Step 13: Command to run when container starts
 #change the auth-service to the name of the service 
-CMD ["./auth-service"]
+CMD ["./ghgist-blog"]

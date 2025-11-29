@@ -13,6 +13,7 @@ type User struct {
 	Password  string             `bson:"password" json:"password"`
 	CreatedAt time.Time          `bson:"createdAt" json:"created_at"`
 	LastLogin time.Time          `bson:"lastLogin" json:"last_login"`
+	Role      string             `bson:"role" json:"role"`
 	UpdatedAt time.Time          `bson:"updated" json:"updated_at"`
 }
 type JSONresponse struct {

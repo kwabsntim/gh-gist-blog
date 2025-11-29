@@ -38,7 +38,7 @@ func (h *SignUpHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Call service - let it handle all business logic
-	user, err := h.registerService.RegisterUser(req.Email, req.Username, req.Password)
+	user, err := h.registerService.RegisterUser(req.Email, req.Username, req.Password, req.Role)
 	if err != nil {
 		http.Error(w, "Registration failed: "+err.Error(), http.StatusBadRequest)
 		return

@@ -5,7 +5,7 @@ import "AuthGo/models"
 // RegisterInterface defines the contract for user registration operations
 type RegisterInterface interface {
 	// RegisterUser creates a new user with the provided credentials
-	RegisterUser(email, username, password string) (*models.User, error)
+	RegisterUser(email, username, password, role string) (*models.User, error)
 }
 
 // LoginInterface defines the contract for user authentication operations

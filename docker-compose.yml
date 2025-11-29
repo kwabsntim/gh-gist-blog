@@ -3,15 +3,15 @@ version: '3.8'
 services:
   mongodb:
     image: mongo:latest
-    container_name: authgo-mongodb
+    container_name: ghGist-blog-mongodb
     ports:
       - "27018:27017"
     environment:
-      MONGO_INITDB_DATABASE: localDB
+      MONGO_INITDB_DATABASE: ghgistDB
     volumes:
       - mongo_data:/data/db
     networks:
-      - authgo-network
+      - ghgist-network
     command: mongod --quiet --logpath /dev/null
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
@@ -19,7 +19,7 @@ services:
       timeout: 5s
       retries: 5
 
-  auth-service:
+  ghgist-blog:
     build: .
     container_name: ghGist-blog 
     ports:
@@ -27,17 +27,17 @@ services:
     env_file:
       - .env
     environment:
-      - MONGODB_URI=mongodb://mongodb:27017/localDB
+      - MONGODB_URI=mongodb://mongodb:27017/ghgistDB
     depends_on:
       mongodb:
         condition: service_healthy
     networks:
-      - authgo-network
+      - ghgist-network
     restart: on-failure
 
 volumes:
   mongo_data:
 
 networks:
-  authgo-network:
+  ghgist-network:
     driver: bridge

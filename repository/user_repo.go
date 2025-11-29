@@ -28,7 +28,7 @@ func (r *mongoclient) CreateUser(user *models.User) error {
 
 	user.CreatedAt = time.Now()
 
-	collection := r.client.Database("localDB").Collection("profiles")
+	collection := r.client.Database("ghgistDB").Collection("profiles")
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -49,7 +49,7 @@ func (r *mongoclient) CreateUser(user *models.User) error {
 	return nil
 }
 func (r *mongoclient) FindUserByEmail(email string) (*models.User, error) {
-	collection := r.client.Database("localDB").Collection("profiles")
+	collection := r.client.Database("ghgistDB").Collection("profiles")
 	ctx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
 	defer cancel()
 	var user models.User
@@ -66,7 +66,7 @@ func (r *mongoclient) SetupIndexes() error {
 		log.Fatal("Database client not initialized")
 	}
 
-	collection := r.client.Database("localDB").Collection("profiles")
+	collection := r.client.Database("ghgistDB").Collection("profiles")
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -92,7 +92,7 @@ func (r *mongoclient) SetupIndexes() error {
 	return nil
 }
 func (r *mongoclient) FetchAllUsers() ([]models.User, error) {
-	collection := r.client.Database("localDB").Collection("profiles")
+	collection := r.client.Database("ghgistDB").Collection("profiles")
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
