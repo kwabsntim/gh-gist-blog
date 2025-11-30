@@ -7,29 +7,23 @@ import (
 )
 
 // ---------------------------Structs----------------------------
-type SignUpHandler struct {
-	registerService services.RegisterInterface
-}
-type LoginHandler struct {
-	loginService services.LoginInterface
-}
-type FetchUsersHandler struct {
-	fetchUsersService services.FetchUsersInterface
+type Handler struct {
+	RegisterService services.RegisterInterface
+	LoginService    services.LoginInterface
+	FetchService    services.FetchUsersInterface
 }
 
-func NewSignUpHandler(registerService services.RegisterInterface) *SignUpHandler {
-	return &SignUpHandler{registerService: registerService}
-}
-func NewLoginHandler(loginService services.LoginInterface) *LoginHandler {
-	return &LoginHandler{loginService: loginService}
-}
-func NewFetchHandler(fetchUsersService services.FetchUsersInterface) *FetchUsersHandler {
-	return &FetchUsersHandler{fetchUsersService: fetchUsersService}
+func NewHandlers(services *ServiceContainer) *Handler {
+	return &Handler{
+		RegisterService: services.RegisterService,
+		LoginService:    services.LoginService,
+		FetchService:    services.FetchService,
+	}
 }
 
 //---------------------------Handler functions----------------------------
 
-func (h *SignUpHandler) SignUp(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	// Validate HTTP method
 
 	var req models.User
@@ -37,7 +31,7 @@ func (h *SignUpHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Call service - let it handle all business logic
-	user, err := h.registerService.RegisterUser(req.Email, req.Username, req.Password, req.Role)
+	user, err := h.RegisterService.RegisterUser(req.Email, req.Username, req.Password, req.Role)
 	if err != nil {
 		http.Error(w, "Registration failed: "+err.Error(), http.StatusBadRequest)
 		return
@@ -58,7 +52,7 @@ func (h *SignUpHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (h *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	var req models.User
 	//decoding the json request
@@ -66,7 +60,7 @@ func (h *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.loginService.LoginUser(req.Email, req.Password)
+	user, err := h.LoginService.LoginUser(req.Email, req.Password)
 	if err != nil {
 		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 		return
@@ -83,9 +77,9 @@ func (h *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 	// Success response
 	SendAuthResponse(w, "Login successful", data, http.StatusCreated)
 }
-func (h *FetchUsersHandler) FetchAllUsers(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) FetchAllUsers(w http.ResponseWriter, r *http.Request) {
 
-	users, err := h.fetchUsersService.FetchAllUsers()
+	users, err := h.FetchService.FetchAllUsers()
 	if err != nil {
 		http.Error(w, "Could not fetch users", http.StatusInternalServerError)
 		return

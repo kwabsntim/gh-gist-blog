@@ -14,16 +14,34 @@ type ServiceContainer struct {
 	FetchService    services.FetchUsersInterface
 }
 
+// chain function to apply mutiple middleware
+// Add this function before RouteSetup
+func Chain(middlewares ...func(http.HandlerFunc) http.HandlerFunc) func(http.HandlerFunc) http.HandlerFunc {
+	return func(handler http.HandlerFunc) http.HandlerFunc {
+		for i := len(middlewares) - 1; i >= 0; i-- {
+			handler = middlewares[i](handler)
+		}
+		return handler
+	}
+}
+
+// recieves the service container from main.go
 func RouteSetup(services *ServiceContainer) *http.ServeMux {
 	//using server mux to map the requests
-	signupHandler := NewSignUpHandler(services.RegisterService)
-	loginHandler := NewLoginHandler(services.LoginService)
-	FetchUsersHandler := NewFetchHandler(services.FetchService) //the service must be in capital eg.FetchService
+	handlers := NewHandlers(services)
 
+	//creating chains for middleware to be used in the routes
+	var (
+		roleChain       = middleware.RoleMiddleware
+		authChain       = middleware.AuthMiddleware
+		methodChainGet  = middleware.MethodChecker("GET")
+		methodChainPost = middleware.MethodChecker("POST")
+	)
+	//mapping the routes to the handlers with the middleware chains
 	mux := http.NewServeMux()
-	mux.HandleFunc("/api/Signup", middleware.MethodChecker("POST")(signupHandler.SignUp))
-	mux.HandleFunc("/api/Login", middleware.MethodChecker("POST")(loginHandler.Login))
-	mux.HandleFunc("/api/FetchUsers", middleware.MethodChecker("GET")(FetchUsersHandler.FetchAllUsers))
-
+	mux.HandleFunc("/api/Signup", Chain(methodChainPost, authChain, roleChain)(handlers.SignUp))
+	mux.HandleFunc("/api/Login", Chain(methodChainPost, authChain)(handlers.Login))
+	mux.HandleFunc("/api/FetchUsers", Chain(methodChainGet)(handlers.FetchAllUsers))
+	//returning the mux
 	return mux
 }
