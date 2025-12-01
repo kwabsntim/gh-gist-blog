@@ -32,16 +32,16 @@ func RouteSetup(services *ServiceContainer) *http.ServeMux {
 
 	//creating chains for middleware to be used in the routes
 	var (
-		roleChain       = middleware.RoleMiddleware
-		authChain       = middleware.AuthMiddleware
-		methodChainGet  = middleware.MethodChecker("GET")
-		methodChainPost = middleware.MethodChecker("POST")
+		role          = middleware.RoleMiddleware
+		authorization = middleware.AuthMiddleware
+		methodGet     = middleware.MethodChecker("GET")
+		methodPost    = middleware.MethodChecker("POST")
 	)
 	//mapping the routes to the handlers with the middleware chains
 	mux := http.NewServeMux()
-	mux.HandleFunc("/api/Signup", Chain(methodChainPost, authChain, roleChain)(handlers.SignUp))
-	mux.HandleFunc("/api/Login", Chain(methodChainPost, authChain)(handlers.Login))
-	mux.HandleFunc("/api/FetchUsers", Chain(methodChainGet)(handlers.FetchAllUsers))
+	mux.HandleFunc("/api/Register", Chain(methodPost, authorization, role)(handlers.SignUp))
+	mux.HandleFunc("/api/Login", methodPost(handlers.Login))
+	mux.HandleFunc("/api/FetchUsers", Chain(methodGet)(handlers.FetchAllUsers))
 	//returning the mux
 	return mux
 }

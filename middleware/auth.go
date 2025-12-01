@@ -63,6 +63,7 @@ func RoleMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		role := r.Context().Value(RoleKey).(string)
 		if role != "publisher" {
 			http.Error(w, "You cannot access this resource", http.StatusForbidden)
+			return
 		}
 		next.ServeHTTP(w, r)
 	}
