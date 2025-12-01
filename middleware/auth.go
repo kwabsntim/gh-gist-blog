@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"AuthGo/utils"
 	"context"
+	"ghgist-blog/utils"
 	"net/http"
 	"strings"
 )

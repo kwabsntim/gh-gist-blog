@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"AuthGo/models"
-	"AuthGo/services"
+	"ghgist-blog/models"
+	"ghgist-blog/services"
 	"net/http"
 )
 

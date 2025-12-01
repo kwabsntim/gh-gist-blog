@@ -2,9 +2,9 @@ package repository
 
 //when changing the database change it here
 import (
-	"AuthGo/models"
 	"context"
 	"errors"
+	"ghgist-blog/models"
 	"log"
 	"time"
 
@@ -109,4 +109,14 @@ func (r *mongoclient) FetchAllUsers() ([]models.User, error) {
 	}
 
 	return users, nil
+}
+
+// articles repository
+func (r *mongoclient) CreateArticle(article *models.Article) error {
+	article.CreatedAt = time.Now()
+	collection := r.client.Database("ghgistDB").Collection("articles")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	_, err := collection.InsertOne(ctx, article)
+	return err
 }

@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"AuthGo/models"
-	"AuthGo/utils"
 	"encoding/json"
+	"ghgist-blog/models"
+	"ghgist-blog/utils"
 	"net/http"
 )
 

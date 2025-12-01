@@ -1,9 +1,9 @@
 package services
 
 import (
-	"AuthGo/models"
-	"AuthGo/repository"
 	"errors"
+	"ghgist-blog/models"
+	"ghgist-blog/repository"
 )
 
 type FetchUserServiceImpl struct {

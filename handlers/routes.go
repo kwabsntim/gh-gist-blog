@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"AuthGo/middleware"
-	"AuthGo/services"
+	"ghgist-blog/middleware"
+	"ghgist-blog/services"
 	"net/http"
 )
 
@@ -39,8 +39,8 @@ func RouteSetup(services *ServiceContainer) *http.ServeMux {
 	)
 	//mapping the routes to the handlers with the middleware chains
 	mux := http.NewServeMux()
-	mux.HandleFunc("/api/Register", Chain(methodPost, authorization, role)(handlers.SignUp))
-	mux.HandleFunc("/api/Login", methodPost(handlers.Login))
+	mux.HandleFunc("/api/auth/Register", Chain(methodPost, authorization, role)(handlers.SignUp))
+	mux.HandleFunc("/api/auth/Login", methodPost(handlers.Login))
 	mux.HandleFunc("/api/FetchUsers", Chain(methodGet)(handlers.FetchAllUsers))
 	//returning the mux
 	return mux

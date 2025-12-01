@@ -1,6 +1,6 @@
 package services
 
-import "AuthGo/models"
+import "ghgist-blog/models"
 
 // RegisterInterface defines the contract for user registration operations
 type RegisterInterface interface {

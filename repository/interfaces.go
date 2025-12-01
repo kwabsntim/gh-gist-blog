@@ -1,6 +1,6 @@
 package repository
 
-import "AuthGo/models"
+import "ghgist-blog/models"
 
 type UserRepository interface {
 	CreateUser(user *models.User) error

@@ -1,4 +1,4 @@
-module AuthGo
+module ghgist-blog
 
 go 1.24.0
 

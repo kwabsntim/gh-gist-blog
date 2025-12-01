@@ -1,11 +1,11 @@
 package services
 
 import (
-	"AuthGo/models"
-	"AuthGo/repository"
-	"AuthGo/utils"
-	"AuthGo/validation"
 	"errors"
+	"ghgist-blog/models"
+	"ghgist-blog/repository"
+	"ghgist-blog/utils"
+	"ghgist-blog/validation"
 )
 
 // this stores everything from the user repository
