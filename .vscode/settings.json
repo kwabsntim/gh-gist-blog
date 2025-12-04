@@ -1,0 +1,6 @@
+{
+    "editor.fontSize": 15,
+    "go.formatTool": "goimports",
+    "editor.formatOnSave": true,
+    "go.useLanguageServer": true
+}
