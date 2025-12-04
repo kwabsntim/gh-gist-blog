@@ -8,3 +8,4 @@ type UserRepository interface {
 	SetupIndexes() error
 	FetchAllUsers() ([]models.User, error)
 }
+type ArticleRepository interface{}

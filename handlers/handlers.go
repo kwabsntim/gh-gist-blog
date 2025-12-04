@@ -4,6 +4,8 @@ import (
 	"ghgist-blog/models"
 	"ghgist-blog/services"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 // ---------------------------Structs----------------------------
@@ -23,23 +25,25 @@ func NewHandlers(services *ServiceContainer) *Handler {
 
 //---------------------------Handler functions----------------------------
 
-func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) SignUp(c *gin.Context) {
 	// Validate HTTP method
 
 	var req models.User
-	if !DecodeJSONRequest(w, r, &req) {
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
 		return
 	}
 	// Call service - let it handle all business logic
 	user, err := h.RegisterService.RegisterUser(req.Email, req.Username, req.Password, req.Role)
 	if err != nil {
-		http.Error(w, "Registration failed: "+err.Error(), http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "User registration failed: "})
 		return
 	}
 	// Create token
 	token, err := CreateTokenForUser(user)
 	if err != nil {
-		http.Error(w, "Token creation failed: "+err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Token creation failed:"})
 		return
 	}
 	data := map[string]interface{}{
@@ -48,26 +52,29 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Success response
-	SendAuthResponse(w, "User created successfully", data, http.StatusCreated)
+	SendAuthResponse(c, "User created successfully", data, http.StatusCreated)
 
 }
 
-func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Login(c *gin.Context) {
 
 	var req models.User
 	//decoding the json request
-	if !DecodeJSONRequest(w, r, &req) {
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
 		return
 	}
 
 	user, err := h.LoginService.LoginUser(req.Email, req.Password)
 	if err != nil {
-		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Login failed: "})
 		return
 	}
+	// Create token
 	token, err := CreateTokenForUser(user)
 	if err != nil {
-		http.Error(w, "Token creation failed: "+err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Token creation failed: " + err.Error()})
 		return
 	}
 	data := map[string]interface{}{
@@ -75,17 +82,18 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		"user":  user,
 	}
 	// Success response
-	SendAuthResponse(w, "Login successful", data, http.StatusCreated)
+	SendAuthResponse(c, "Login successful", data, http.StatusCreated)
 }
-func (h *Handler) FetchAllUsers(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) FetchAllUsers(c *gin.Context) {
 
 	users, err := h.FetchService.FetchAllUsers()
 	if err != nil {
-		http.Error(w, "Could not fetch users", http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not fetch users"})
 		return
 	}
 	data := map[string]interface{}{
 		"users": users,
 	}
-	SendAuthResponse(w, "Fetch successful", data, http.StatusCreated)
+	//success response
+	SendAuthResponse(c, "Fetch successful", data, http.StatusCreated)
 }

@@ -92,6 +92,27 @@ func (m *mongoclient) EditArticle(article models.Article) error {
 	return nil
 }
 
+// delete article
+func (m *mongoclient) DeleteArticle(article *models.Article) error {
+	//delete article logic
+	objID, err := primitive.ObjectIDFromHex(article.ID.Hex())
+	if err != nil {
+		return errors.New("invalid article ID")
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	collection := m.client.Database("ghgistDB").Collection("articles")
+	filter := bson.M{"_id": objID}
+	result, err := collection.DeleteOne(ctx, filter)
+	if err != nil {
+		return err
+	}
+	if result.DeletedCount == 0 {
+		return errors.New("article not found")
+	}
+	return nil
+}
+
 // get artcle by ID
 func (m *mongoclient) FindArticleByID(id primitive.ObjectID) (*models.Article, error) {
 	collection := m.client.Database("ghgistDB").Collection("articles")
