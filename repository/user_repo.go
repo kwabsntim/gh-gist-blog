@@ -117,6 +117,91 @@ func (r *mongoclient) CreateArticle(article *models.Article) error {
 	collection := r.client.Database("ghgistDB").Collection("articles")
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	_, err := collection.InsertOne(ctx, article)
-	return err
+	result, err := collection.InsertOne(ctx, article)
+	if err != nil {
+		return err
+	}
+	//setting up article ID
+	if oid, ok := result.InsertedID.(primitive.ObjectID); ok {
+		article.ID = oid
+	}
+	return nil
 }
+func (r *mongoclient) FetchallArticles() ([]models.Article, error) {
+	collection := r.client.Database("ghgistDB").Collection("articles")
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	findOptions := options.Find().SetProjection(bson.M{})
+	cursor, err := collection.Find(ctx, bson.M{}, findOptions)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var articles []models.Article
+	if err = cursor.All(ctx, &articles); err != nil {
+		return nil, err
+	}
+
+	return articles, nil
+}
+
+// editing articles
+func (r *mongoclient) EditArticle(article models.Article) error {
+	objID, err := primitive.ObjectIDFromHex(article.ID.Hex())
+	if err != nil {
+		return errors.New("Invalid article ID")
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	collection := m.client.Database("usersdb").Collection("users")
+	updateFields := bson.M{}
+}
+
+//func (r *mongoclient)FindArticleBySlug(slug string)(articles *models.Article, err error){
+//collection := r.client.Database("ghgistDB").Collection("articles")
+//ctx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
+//defer cancel()
+//var article models.Article
+//err := collection.FindOne(ctx, bson.M{"slug": slug}).Decode(&article)
+//if err != nil {
+//	return nil, err
+//}
+//return &article, nil
+//}
+
+// get artcle by ID
+func (r *mongoclient) FindArticleByID(id primitive.ObjectID) (*models.Article, error) {
+	collection := r.client.Database("ghgistDB").Collection("articles")
+	ctx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
+	defer cancel()
+
+	var article models.Article                                         // ← Create actual instance
+	err := collection.FindOne(ctx, bson.M{"_id": id}).Decode(&article) // ← Decode into it
+	if err != nil {
+		return nil, err
+	}
+	return &article, nil // ← Return address of the instance
+}
+func (r *mongoclient) FindArticlesByCategoryID(categoryID primitive.ObjectID) ([]models.Article, error) {
+	collection := r.client.Database("ghgistDB").Collection("articles")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	cursor, err := collection.Find(ctx, bson.M{"category_id": categoryID})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var articles []models.Article
+	if err = cursor.All(ctx, &articles); err != nil {
+		return nil, err
+	}
+	return articles, nil
+}
+
+//func (r *mongoclient) FindArticlesByAuthorID(authorID primitive.ObjectID) ([]models.Article, error) {
+
+//}

@@ -31,6 +31,8 @@ type Article struct {
 	Tags       []string           `bson:"tags" json:"tags"`
 	CreatedAt  time.Time          `bson:"created_at" json:"created_at"`
 	UpdatedAt  time.Time          `bson:"updated_at" json:"updated_at"`
+	featured   bool               `bson:"featured" json:"featured"`
+	trending   bool               `bson:"trending" json:"trending"`
 }
 
 // Json reponse struct

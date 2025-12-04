@@ -1,12 +1,12 @@
 package main
 
 import (
-	db "AuthGo/Database"
-	"AuthGo/handlers"
-	"AuthGo/middleware"
-	"AuthGo/repository"
-	"AuthGo/services"
 	"context"
+	db "ghgist-blog/Database"
+	"ghgist-blog/handlers"
+	"ghgist-blog/middleware"
+	"ghgist-blog/repository"
+	"ghgist-blog/services"
 	"log"
 	"log/slog"
 	"net/http"
