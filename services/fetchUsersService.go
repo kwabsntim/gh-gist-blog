@@ -15,7 +15,7 @@ func NewFetchUserService(userRepo repository.UserRepository) FetchWritersInterfa
 }
 func (s *FetchUserServiceImpl) FetchAllWriters() ([]models.User, error) {
 	//fetch all users
-	users, err := s.userRepo.FetchAllUsers()
+	users, err := s.userRepo.FetchAllWriters()
 	if err != nil {
 		return nil, errors.New("could not fetch users")
 	}

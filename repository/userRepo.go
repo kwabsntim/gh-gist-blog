@@ -85,7 +85,7 @@ func (m *mongoclient) SetupIndexes() error {
 	log.Println("Database indexes created successfully!")
 	return nil
 }
-func (m *mongoclient) FetchAllUsers() ([]models.User, error) {
+func (m *mongoclient) FetchAllWriters() ([]models.User, error) {
 	collection := m.client.Database("ghgistDB").Collection("profiles")
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
