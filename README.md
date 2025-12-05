@@ -138,8 +138,6 @@ Authorization: Bearer <your-jwt-token>
 
 ## License
 
-[Add your license here]
+This project is not open sourced yet
 
-## Contact
 
-[Add your contact information here]
