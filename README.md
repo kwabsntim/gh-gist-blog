@@ -61,14 +61,7 @@ gh gist blog/
 
 ### Environment Variables
 
-Create a `.env` file in the root directory:
-
-```env
-SECRET_KEY=your-jwt-secret-key
-PORT=8080
-APP_URL=http://localhost:8080
-MONGODB_URI=mongodb://localhost:27018/ghgistDB
-```
+Create a `.env` file in the root directory with the required environment variables. See `.env.example` for reference.
 
 ### Local Development
 
