@@ -121,7 +121,7 @@ Authorization: Bearer <your-jwt-token>
 ### Fly.io
 - Uses Dockerfile for deployment
 - Set environment variables via `fly secrets`
-- MongoDB Atlas recommended for production database
+- MongoDB Atlas recommended for production database or any external database
 
 ### Environment-Specific Configuration
 - **Local**: Uses `.env` file
@@ -138,8 +138,6 @@ Authorization: Bearer <your-jwt-token>
 
 ## License
 
-[Add your license here]
+This project is not open sourced yet
 
-## Contact
 
-[Add your contact information here]
