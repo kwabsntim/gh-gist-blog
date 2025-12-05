@@ -88,7 +88,7 @@ Create a `.env` file in the root directory with the required environment variabl
 ### Public Routes
 - `GET /api/public/writers` - Fetch all writers
 - `POST /api/public/auth/login` - User login
-- `POST /api/public/auth/register` - User registration (temporary public access)
+
 
 ### Protected Routes
 - `POST /api/admin/articles` - Create article (requires authentication)
