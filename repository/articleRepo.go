@@ -35,7 +35,7 @@ func (m *mongoclient) CreateArticle(article *models.Article) error {
 }
 
 // get all articles
-func (m *mongoclient) FetchallArticles() ([]models.Article, error) {
+func (m *mongoclient) FetchAllArticles() ([]models.Article, error) {
 	collection := m.client.Database("ghgistDB").Collection("articles")
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
