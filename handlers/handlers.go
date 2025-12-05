@@ -12,7 +12,7 @@ import (
 type Handler struct {
 	RegisterService services.RegisterInterface
 	LoginService    services.LoginInterface
-	FetchService    services.FetchUsersInterface
+	FetchService    services.FetchWritersInterface
 }
 
 func NewHandlers(services *ServiceContainer) *Handler {
@@ -25,7 +25,7 @@ func NewHandlers(services *ServiceContainer) *Handler {
 
 //---------------------------Handler functions----------------------------
 
-func (h *Handler) SignUp(c *gin.Context) {
+func (h *Handler) Register(c *gin.Context) {
 	// Validate HTTP method
 
 	var req models.User
@@ -37,13 +37,13 @@ func (h *Handler) SignUp(c *gin.Context) {
 	// Call service - let it handle all business logic
 	user, err := h.RegisterService.RegisterUser(req.Email, req.Username, req.Password, req.Role)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "User registration failed: "})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "User registration failed: " + err.Error()})
 		return
 	}
 	// Create token
 	token, err := CreateTokenForUser(user)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Token creation failed:"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Token creation failed: " + err.Error()})
 		return
 	}
 	data := map[string]interface{}{
@@ -62,13 +62,13 @@ func (h *Handler) Login(c *gin.Context) {
 	//decoding the json request
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload" + err.Error()})
 		return
 	}
 
 	user, err := h.LoginService.LoginUser(req.Email, req.Password)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Login failed: "})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Login failed: " + err.Error()})
 		return
 	}
 	// Create token
@@ -84,11 +84,11 @@ func (h *Handler) Login(c *gin.Context) {
 	// Success response
 	SendAuthResponse(c, "Login successful", data, http.StatusCreated)
 }
-func (h *Handler) FetchAllUsers(c *gin.Context) {
+func (h *Handler) FetchAllWriters(c *gin.Context) {
 
-	users, err := h.FetchService.FetchAllUsers()
+	users, err := h.FetchService.FetchAllWriters()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not fetch users"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not fetch users" + err.Error()})
 		return
 	}
 	data := map[string]interface{}{

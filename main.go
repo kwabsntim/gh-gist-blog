@@ -4,7 +4,6 @@ import (
 	"context"
 	db "ghgist-blog/Database"
 	"ghgist-blog/handlers"
-	"ghgist-blog/middleware"
 	"ghgist-blog/repository"
 	"ghgist-blog/services"
 	"log"
@@ -58,8 +57,7 @@ func main() {
 		FetchService:    services.NewFetchUserService(userRepo),
 	}
 	// Setup routes with container
-	mux := handlers.RouteSetup(serviceContainer)
-	handlerWithPanicRecovery := middleware.PanicMiddleware(logger)(mux)
+	router := handlers.RouteSetup(serviceContainer)
 
 	// Setup database indexes
 	err := userRepo.SetupIndexes()
@@ -81,27 +79,33 @@ func main() {
 		port = "8080" // fallback
 	}
 
+	// Create HTTP server with Gin router
 	server := &http.Server{
 		Addr:           ":" + port,
-		Handler:        handlerWithPanicRecovery,
-		ReadTimeout:    5 * time.Second,
-		WriteTimeout:   5 * time.Second,
+		Handler:        router,
+		ReadTimeout:    10 * time.Second,
+		WriteTimeout:   10 * time.Second,
 		IdleTimeout:    60 * time.Second,
 		MaxHeaderBytes: 1 << 20, // 1MB
 	}
 
+	// Graceful shutdown setup
 	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
 	logger.Info("Server started on port " + port)
+
 	go func() {
-		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := server.ListenAndServe(); err != nil {
 			logger.Error("Server failed to start", "error", err)
 			quit <- syscall.SIGTERM
 		}
 	}()
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
 	<-quit
 	logger.Info("Shutting down server...")
+
+	//graceful shutdown with context timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := server.Shutdown(ctx); err != nil {

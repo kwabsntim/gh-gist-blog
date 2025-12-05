@@ -10,19 +10,16 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// getting secret key from .env using the init function
-var secretKey []byte
-
-func init() {
-
+func getSecretKey() []byte {
 	secret_key := os.Getenv("SECRET_KEY")
 	if secret_key == "" {
 		log.Fatal("SECRET_KEY not found in environment")
 	}
-	secretKey = []byte(secret_key)
+	return []byte(secret_key)
 }
 
 func CreateToken(userID, role string) (string, error) {
+	secretKey := getSecretKey()
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": userID,
@@ -38,6 +35,7 @@ func CreateToken(userID, role string) (string, error) {
 
 // validating the token
 func ValidateToken(tokenString string) (*jwt.MapClaims, error) {
+	secretKey := getSecretKey()
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return secretKey, nil
 	})

@@ -24,10 +24,10 @@ services:
     container_name: ghGist-blog 
     ports:
       - "8080:8080"
-    env_file:
-      - .env
     environment:
+      - PORT=8080
       - MONGODB_URI=mongodb://mongodb:27017/ghgistDB
+      - SECRET_KEY=${SECRET_KEY}
     depends_on:
       mongodb:
         condition: service_healthy

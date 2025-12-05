@@ -1,10 +1,11 @@
 package middleware
 
 import (
-	"context"
 	"ghgist-blog/utils"
 	"net/http"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 type contextKey string
@@ -12,19 +13,22 @@ type contextKey string
 const UserIDKey contextKey = "user_id"
 const RoleKey contextKey = "role"
 
-func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+// authentication middleware //remember c.abort() stops the execution of further middleware/handlers
+func AuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
 		// Get token from Authorization header
-		authHeader := r.Header.Get("Authorization")
+		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			http.Error(w, "Authorization header required", http.StatusUnauthorized)
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
+			c.Abort()
 			return
 		}
 
 		// Check Bearer format
 		parts := strings.Split(authHeader, " ")
 		if len(parts) != 2 || parts[0] != "Bearer" {
-			http.Error(w, "Invalid authorization format", http.StatusUnauthorized)
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid authorization format"})
+			c.Abort()
 			return
 		}
 
@@ -33,38 +37,55 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		// Validate token
 		claims, err := utils.ValidateToken(token)
 		if err != nil {
-			http.Error(w, "Invalid token", http.StatusUnauthorized)
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+			c.Abort()
 			return
 		}
 
 		// Extract user ID from claims
 		userID, ok := (*claims)["user_id"].(string)
 		if !ok {
-			http.Error(w, "Invalid token claims", http.StatusUnauthorized)
-			return
-		}
-		//Extract the role of the user
-		role, ok := (*claims)["role"].(string)
-		if !ok {
-			http.Error(w, "Invalid token claims", http.StatusUnauthorized)
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
+			c.Abort()
 			return
 		}
 
-		// Add user ID to request context
-		ctx := context.WithValue(r.Context(), UserIDKey, userID)
-		ctx = context.WithValue(ctx, RoleKey, role)
-		next.ServeHTTP(w, r.WithContext(ctx))
+		// Extract the role of the user
+		role, ok := (*claims)["role"].(string)
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
+			c.Abort()
+			return
+		}
+
+		// Store user info in Gin context for handlers to use
+		c.Set("user_id", userID)
+		c.Set("role", role)
+
+		// Continue to next middleware/handler
+		c.Next()
 	}
 }
 
 // the middleware that extracts the role of the user from the response
-func RoleMiddleware(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		role := r.Context().Value(RoleKey).(string)
-		if role != "publisher" {
-			http.Error(w, "You cannot access this resource", http.StatusForbidden)
+func RoleMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Get role from context (set by AuthMiddleware)
+		role, exists := c.Get("role")
+		if !exists {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "No role found in context"})
+			c.Abort()
 			return
 		}
-		next.ServeHTTP(w, r)
+
+		roleStr, ok := role.(string)
+		if !ok || roleStr != "publisher" {
+			c.JSON(http.StatusForbidden, gin.H{"error": "You cannot access this resource"})
+			c.Abort()
+			return
+		}
+
+		// Continue to next middleware/handler
+		c.Next()
 	}
 }

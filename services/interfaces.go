@@ -13,6 +13,6 @@ type LoginInterface interface {
 	// LoginUser authenticates a user with email and password
 	LoginUser(email, password string) (*models.User, error)
 }
-type FetchUsersInterface interface {
-	FetchAllUsers() ([]models.User, error)
+type FetchWritersInterface interface {
+	FetchAllWriters() ([]models.User, error)
 }

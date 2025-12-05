@@ -1,28 +1,33 @@
 package db
 
 import (
-	"github.com/joho/godotenv"
-
 	"context"
 	"log"
 	"os"
 	"time"
 
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 func ConnectDB() *mongo.Client {
-	// Try to load .env file (optional - for local development)
+	// Load .env file
 	godotenv.Load()
 	
+	// Get MongoDB URI from environment
+	mongoURI := os.Getenv("MONGODB_URI")
+	if mongoURI == "" {
+		log.Fatal("MONGODB_URI not found in environment")
+	}
+
 	//specifying the server api version
 	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
 
 	//applying database pooling options
 	opts := options.Client().
-		ApplyURI(os.Getenv("MONGODB_URI")).
+		ApplyURI(mongoURI).
 		SetServerAPIOptions(serverAPI).
 		SetMaxPoolSize(20).
 		SetMinPoolSize(5).
@@ -32,11 +37,6 @@ func ConnectDB() *mongo.Client {
 		SetServerSelectionTimeout(5 * time.Second).
 		SetRetryWrites(true).
 		SetRetryReads(true)
-
-	mongoURI := os.Getenv("MONGODB_URI")
-	if mongoURI == "" {
-		log.Fatal("MONGODB_URI not found in environment")
-	}
 
 	client, err := mongo.Connect(context.TODO(), opts)
 	if err != nil {
