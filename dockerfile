@@ -34,5 +34,5 @@ COPY --from=builder /app/ghgist-blog .
 EXPOSE 8080
 
 # Step 13: Command to run when container starts
-#change the auth-service to the name of the service 
+#change the ghgist-blog to the name of the project
 CMD ["./ghgist-blog"]
