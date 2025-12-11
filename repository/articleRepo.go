@@ -57,6 +57,7 @@ func (m *mongoclient) FetchAllArticles() ([]models.Article, error) {
 
 // edit articles
 func (m *mongoclient) EditArticle(article models.Article) error {
+	//change this syntax below handler must change to primitive id 
 	objID, err := primitive.ObjectIDFromHex(article.ID.Hex())
 	if err != nil {
 		return errors.New("Invalid article ID")
