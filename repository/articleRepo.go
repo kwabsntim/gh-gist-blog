@@ -99,7 +99,7 @@ func (m *mongoclient) DeleteArticle(article *models.Article) error {
 	collection := m.client.Database("ghgistDB").Collection("articles")
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	filter := bson.M{"_id": objID}
+	filter := bson.M{"_id": id}//use ID below because we convert it at the handler not objID
 	result, err := collection.DeleteOne(ctx, filter)
 	if err != nil {
 		return err
