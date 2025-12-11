@@ -95,13 +95,9 @@ func (m *mongoclient) EditArticle(article models.Article) error {
 // delete article
 func (m *mongoclient) DeleteArticle(article *models.Article) error {
 	//delete article logic
-	objID, err := primitive.ObjectIDFromHex(article.ID.Hex())
-	if err != nil {
-		return errors.New("invalid article ID")
-	}
+	collection := m.client.Database("ghgistDB").Collection("articles")
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	collection := m.client.Database("ghgistDB").Collection("articles")
 	filter := bson.M{"_id": objID}
 	result, err := collection.DeleteOne(ctx, filter)
 	if err != nil {
